@@ -1,103 +1,103 @@
 version: '2'
 services:
     geodocker-zookeeper:
-        image: ${PULL_PREFIX}/geodocker-zookeeper:latest
-        volumes:
-          - '${HOST_HDFS}:/data/hdfs'
+        image: geotrellis/geodocker-zookeeper:latest
+        #  volumes:
+        #   - '/data/gt/hdfs:/data/hdfs'
     geodocker-hadoop-name:
-        image: ${PULL_PREFIX}/geodocker-hadoop:latest
+        image: geotrellis/geodocker-hadoop:latest
         command: name dev
         environment:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
         ports:
           - 50070:50070
-        volumes:
-          - '${HOST_HDFS}:/data/hdfs'
+        # volumes:
+        #   - '/data/gt/hdfs:/data/hdfs'
         depends_on:
           - geodocker-zookeeper
     geodocker-hadoop-sname:
-        image: ${PULL_PREFIX}/geodocker-hadoop:latest
+        image: geotrellis/geodocker-hadoop:latest
         command: sname dev
         environment:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
-        volumes:
-          - '${HOST_HDFS}:/data/hdfs'
+        # volumes:
+        #  - '/data/gt/hdfs:/data/hdfs'
         depends_on:
           - geodocker-hadoop-name
     geodocker-hadoop-data:
-        image: ${PULL_PREFIX}/geodocker-hadoop:latest
+        image: geotrellis/geodocker-hadoop:latest
         command: data dev
         environment:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
-        volumes:
-          - '${HOST_HDFS}:/data/hdfs'
+        # volumes:
+        #  - '/data/gt/hdfs:/data/hdfs'
         depends_on:
           - geodocker-hadoop-name
     geodocker-accumulo-master:
         # choose one of images (geodocker-accumulo-gis / geodocker-accumulo)
-        image: ${PULL_PREFIX}/geodocker-accumulo-gis:latest
+        image: geotrellis/geodocker-accumulo-gis:latest
         command: master dev
         environment:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
           ACCUMULO_ZOOKEEPERS: geodocker-zookeeper
-          ACCUMULO_SECRET: ${ACC_SECRET}
-          ACCUMULO_PASSWORD: ${ACC_PWD}
+          ACCUMULO_SECRET: secret
+          ACCUMULO_PASSWORD: GisPwd
           INSTANCE_NAME: gis
         depends_on:
           - geodocker-hadoop-data
-        volumes:
-          - './accumulo/fs/sbin:/sbin:rw'
+        #volumes:
+        #  - './accumulo/fs/sbin:/sbin:rw'
     geodocker-accumulo-gc:
         # choose one of images (geodocker-accumulo-gis / geodocker-accumulo)
-        image: ${PULL_PREFIX}/geodocker-accumulo-gis:latest
+        image: geotrellis/geodocker-accumulo-gis:latest
         command: gc dev
         environment:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
           ACCUMULO_ZOOKEEPERS: geodocker-zookeeper
-          ACCUMULO_SECRET: ${ACC_SECRET}
-          ACCUMULO_PASSWORD: ${ACC_PWD}
+          ACCUMULO_SECRET: secret
+          ACCUMULO_PASSWORD: GisPwd
         depends_on:
           - geodocker-accumulo-master
     geodocker-accumulo-monitor:
       # choose one of images (geodocker-accumulo-gis / geodocker-accumulo)
-        image: ${PULL_PREFIX}/geodocker-accumulo-gis:latest
+        image: geotrellis/geodocker-accumulo-gis:latest
         command: monitor dev
         environment:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
           ACCUMULO_ZOOKEEPERS: geodocker-zookeeper
-          ACCUMULO_SECRET: ${ACC_SECRET}
-          ACCUMULO_PASSWORD: ${ACC_PWD}
+          ACCUMULO_SECRET: secret
+          ACCUMULO_PASSWORD: GisPwd
         ports:
           - 50095:50095
         depends_on:
           - geodocker-accumulo-master
     geodocker-accumulo-tracer:
         # choose one of images (geodocker-accumulo-gis / geodocker-accumulo)
-        image: ${PULL_PREFIX}/geodocker-accumulo-gis:latest
+        image: geotrellis/geodocker-accumulo-gis:latest
         command: tracer dev
         environment:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
           ACCUMULO_ZOOKEEPERS: geodocker-zookeeper
-          ACCUMULO_SECRET: ${ACC_SECRET}
-          ACCUMULO_PASSWORD: ${ACC_PWD}
+          ACCUMULO_SECRET: secret
+          ACCUMULO_PASSWORD: GisPwd
         depends_on:
           - geodocker-accumulo-master
     geodocker-accumulo-tserver:
         # choose one of images (geodocker-accumulo-gis / geodocker-accumulo)
-        image: ${PULL_PREFIX}/geodocker-accumulo-gis:latest
+        image: geotrellis/geodocker-accumulo-gis:latest
         command: tserver dev
         environment:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
           ACCUMULO_ZOOKEEPERS: geodocker-zookeeper
-          ACCUMULO_SECRET: ${ACC_SECRET}
-          ACCUMULO_PASSWORD: ${ACC_PWD}
+          ACCUMULO_SECRET: secret
+          ACCUMULO_PASSWORD: GisPwd
         depends_on:
           - geodocker-accumulo-master
           - geodocker-accumulo-gc
           - geodocker-accumulo-monitor
           - geodocker-accumulo-tracer
     geodocker-spark-master:
-        image: ${PULL_PREFIX}/geodocker-spark:latest
+        image: geotrellis/geodocker-spark:latest
         command: master dev
         hostname: geodocker-spark-master
         environment:
@@ -107,12 +107,12 @@ services:
           MASTER: spark://geodocker-spark-master:7077
         ports:
           - 8080:8080
-        volumes:
-          - './data/gt/spark:/data/spark'
+        # volumes:
+        #  - '/data/gt/spark:/data/spark'
         depends_on:
           - geodocker-hadoop-data
     geodocker-spark-worker:
-        image: ${PULL_PREFIX}/geodocker-spark:latest
+        image: geotrellis/geodocker-spark:latest
         command: worker dev
         hostname: geodocker-spark-worker
         environment:
@@ -125,7 +125,7 @@ services:
         depends_on:
           - geodocker-spark-master
     geodocker-geoserver:
-        image: ${PULL_PREFIX}/geodocker-geoserver:latest
+        image: geotrellis/geodocker-geoserver:latest
         hostname: geodocker-geoserver
         depends_on:
           - geodocker-accumulo-tserver
