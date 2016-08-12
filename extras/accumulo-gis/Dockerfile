@@ -1,6 +1,10 @@
-FROM daunnc/geodocker-accumulo:latest
+FROM local/geodocker-accumulo:latest
 
-MAINTAINER Pomadchin Grigory, daunnc@gmail.com
+# Using locally build base image
+MAINTAINER Michael Johns, Pomadchin Grigory, daunnc@gmail.com
+
+# MLJ: Added root
+USER root
 
 RUN /sbin/load-iterators.sh
 

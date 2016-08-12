@@ -1,10 +1,4 @@
-FROM local/geodocker-pbase:latest
-
-# Using locally build base image
-MAINTAINER Michael Johns, Pomadchin Grigory, daunnc@gmail.com
-
-# MLJ: Added root
-USER root
+FROM geodocker-pbase:latest
 
 ENV CATALINA_OPTS="-Xmx4g -XX:MaxPermSize=512M -Duser.timezone=UTC -server -Djava.awt.headless=true"
 
@@ -32,12 +26,7 @@ COPY ./server.xml /opt/apache-tomcat-8.0.35/conf/server.xml
 # Install geomesa specific geoserver jar
 RUN wget -O /tmp/geomesa-1.2.2.tar.gz https://repo.locationtech.org/content/repositories/geomesa-releases/org/locationtech/geomesa/geomesa-dist/1.2.2/geomesa-dist-1.2.2-bin.tar.gz
 RUN cd /tmp && tar -zxf geomesa-1.2.2.tar.gz geomesa-1.2.2/dist/accumulo/geomesa-accumulo-distributed-runtime-1.2.2.jar
-
-# MLJ: overcoming issue with mv
-#RUN mv /tmp/geomesa-1.2.2/dist/accumulo/geomesa-accumulo-distributed-runtime-1.2.2.jar /opt/apache-tomcat-8.0.35/webapps/geoserver/WEB-INF/lib/
-RUN cp /tmp/geomesa-1.2.2/dist/accumulo/geomesa-accumulo-distributed-runtime-1.2.2.jar /opt/apache-tomcat-8.0.35/webapps/geoserver/WEB-INF/lib
-RUN rm /tmp/geomesa-1.2.2/dist/accumulo/geomesa-accumulo-distributed-runtime-1.2.2.jar
-
+RUN mv /tmp/geomesa-1.2.2/dist/accumulo/geomesa-accumulo-distributed-runtime-1.2.2.jar /opt/apache-tomcat-8.0.35/webapps/geoserver/WEB-INF/lib/
 RUN rm -rf /tmp/geomesa-1.2.2.tar.gz
 
 # Install jars for geomesa/geowave integration
@@ -54,9 +43,6 @@ RUN cd /opt/apache-tomcat-8.0.35/webapps/geoserver/WEB-INF/lib/ && \
   wget http://repo1.maven.org/maven2/org/apache/hadoop/hadoop-hdfs/2.7.2/hadoop-hdfs-2.7.2.jar && \
   wget http://central.maven.org/maven2/org/apache/htrace/htrace-core/3.1.0-incubating/htrace-core-3.1.0-incubating.jar
 
-# MLJ: Added chown
-RUN chown -R root:root /opt
-RUN chown -R root:root /sbin
 
 EXPOSE 9090
 CMD ["/opt/apache-tomcat-8.0.35/bin/catalina.sh", "run"]

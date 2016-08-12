@@ -3,7 +3,7 @@ services:
     geodocker-zookeeper:
         image: ${PULL_PREFIX}/geodocker-zookeeper:latest
         volumes:
-          - '${HOST_HDFS}:/data/hdfs'
+          - geodocker_dev_zookeeper:/data/zookeeper
     geodocker-hadoop-name:
         image: ${PULL_PREFIX}/geodocker-hadoop:latest
         command: name dev
@@ -12,7 +12,7 @@ services:
         ports:
           - 50070:50070
         volumes:
-          - '${HOST_HDFS}:/data/hdfs'
+          - geodocker_dev_hadoop_name:/data/hdfs
         depends_on:
           - geodocker-zookeeper
     geodocker-hadoop-sname:
@@ -21,7 +21,7 @@ services:
         environment:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
         volumes:
-          - '${HOST_HDFS}:/data/hdfs'
+          - geodocker_dev_hadoop_sname:/data/hdfs
         depends_on:
           - geodocker-hadoop-name
     geodocker-hadoop-data:
@@ -30,7 +30,7 @@ services:
         environment:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
         volumes:
-          - '${HOST_HDFS}:/data/hdfs'
+          - geodocker_dev_hadoop_data:/data/hdfs
         depends_on:
           - geodocker-hadoop-name
     geodocker-accumulo-master:
@@ -108,7 +108,7 @@ services:
         ports:
           - 8080:8080
         volumes:
-          - './data/gt/spark:/data/spark'
+          - geodocker_dev_spark:/data/spark
         depends_on:
           - geodocker-hadoop-data
     geodocker-spark-worker:
@@ -129,3 +129,14 @@ services:
         hostname: geodocker-geoserver
         depends_on:
           - geodocker-accumulo-tserver
+volumes:
+  geodocker_dev_zookeeper:
+    external: true
+  geodocker_dev_hadoop_name:
+    external: true
+  geodocker_dev_hadoop_sname:
+    external: true
+  geodocker_dev_hadoop_data:
+    external: true
+  geodocker_dev_spark:
+    external: true
