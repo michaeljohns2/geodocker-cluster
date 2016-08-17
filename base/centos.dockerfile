@@ -1,6 +1,7 @@
 FROM centos:7
 
-MAINTAINER Nathan Zimmerman, npzimmerman@gmail.com
+# Generate locally build base image
+MAINTAINER Michael Johns, Nathan Zimmerman, npzimmerman@gmail.com
 
 ENV USER root
 ENV HOME /root
@@ -30,3 +31,7 @@ RUN cd /usr/local && ln -s apache-maven-3.3.9 maven
 # NETCAT
 RUN wget http://vault.centos.org/6.6/os/x86_64/Packages/nc-1.84-22.el6.x86_64.rpm && \
     rpm -iUv nc-1.84-22.el6.x86_64.rpm && rm nc-1.84-22.el6.x86_64.rpm
+
+# MLJ: Added a data volume for all subsequent images
+RUN mkdir -p /data
+VOLUME [ "/data" ]

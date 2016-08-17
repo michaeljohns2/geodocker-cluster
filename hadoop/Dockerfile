@@ -29,6 +29,9 @@ COPY ./fs/sbin /sbin
 RUN chown -R root:root /opt
 RUN chown -R root:root /sbin
 
+#MLJ: Added mkdir
+RUN mkdir -p /data/hdfs
+
 VOLUME ["/data/hdfs"]
 
 WORKDIR "${HADOOP_HOME}"

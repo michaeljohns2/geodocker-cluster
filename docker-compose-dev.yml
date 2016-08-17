@@ -3,7 +3,7 @@ services:
     geodocker-zookeeper:
         image: ${PULL_PREFIX}/geodocker-zookeeper:latest
         volumes:
-          - geodocker_dev_zookeeper:/data/zookeeper
+          - dev_data:/data
     geodocker-hadoop-name:
         image: ${PULL_PREFIX}/geodocker-hadoop:latest
         command: name dev
@@ -11,8 +11,8 @@ services:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
         ports:
           - 50070:50070
-        volumes:
-          - geodocker_dev_hadoop_name:/data/hdfs
+        volumes_from:
+          - geodocker-zookeeper
         depends_on:
           - geodocker-zookeeper
     geodocker-hadoop-sname:
@@ -20,8 +20,8 @@ services:
         command: sname dev
         environment:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
-        volumes:
-          - geodocker_dev_hadoop_sname:/data/hdfs
+        volumes_from:
+          - geodocker-hadoop-name
         depends_on:
           - geodocker-hadoop-name
     geodocker-hadoop-data:
@@ -29,8 +29,8 @@ services:
         command: data dev
         environment:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
-        volumes:
-          - geodocker_dev_hadoop_data:/data/hdfs
+        volumes_from:
+          - geodocker-hadoop-name
         depends_on:
           - geodocker-hadoop-name
     geodocker-accumulo-master:
@@ -43,10 +43,12 @@ services:
           ACCUMULO_SECRET: ${ACC_SECRET}
           ACCUMULO_PASSWORD: ${ACC_PWD}
           INSTANCE_NAME: gis
-        depends_on:
-          - geodocker-hadoop-data
         volumes:
           - './accumulo/fs/sbin:/sbin:rw'
+        volumes_from: 
+          - geodocker-hadoop-data
+        depends_on:
+          - geodocker-hadoop-data
     geodocker-accumulo-gc:
         # choose one of images (geodocker-accumulo-gis / geodocker-accumulo)
         image: ${PULL_PREFIX}/geodocker-accumulo-gis:latest
@@ -56,6 +58,8 @@ services:
           ACCUMULO_ZOOKEEPERS: geodocker-zookeeper
           ACCUMULO_SECRET: ${ACC_SECRET}
           ACCUMULO_PASSWORD: ${ACC_PWD}
+        volumes_from: 
+          - geodocker-accumulo-master
         depends_on:
           - geodocker-accumulo-master
     geodocker-accumulo-monitor:
@@ -69,6 +73,8 @@ services:
           ACCUMULO_PASSWORD: ${ACC_PWD}
         ports:
           - 50095:50095
+        volumes_from: 
+          - geodocker-accumulo-master
         depends_on:
           - geodocker-accumulo-master
     geodocker-accumulo-tracer:
@@ -80,6 +86,8 @@ services:
           ACCUMULO_ZOOKEEPERS: geodocker-zookeeper
           ACCUMULO_SECRET: ${ACC_SECRET}
           ACCUMULO_PASSWORD: ${ACC_PWD}
+        volumes_from: 
+          - geodocker-accumulo-master
         depends_on:
           - geodocker-accumulo-master
     geodocker-accumulo-tserver:
@@ -91,6 +99,8 @@ services:
           ACCUMULO_ZOOKEEPERS: geodocker-zookeeper
           ACCUMULO_SECRET: ${ACC_SECRET}
           ACCUMULO_PASSWORD: ${ACC_PWD}
+        volumes_from: 
+          - geodocker-accumulo-master
         depends_on:
           - geodocker-accumulo-master
           - geodocker-accumulo-gc
@@ -107,8 +117,8 @@ services:
           MASTER: spark://geodocker-spark-master:7077
         ports:
           - 8080:8080
-        volumes:
-          - geodocker_dev_spark:/data/spark
+        volumes_from: 
+          - geodocker-hadoop-data
         depends_on:
           - geodocker-hadoop-data
     geodocker-spark-worker:
@@ -122,21 +132,16 @@ services:
           SPARK_WORKER_MEMORY: 16g
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
           SPARK_MASTER: geodocker-spark-master
+        volumes_from: 
+          - geodocker-spark-master
         depends_on:
           - geodocker-spark-master
     geodocker-geoserver:
         image: ${PULL_PREFIX}/geodocker-geoserver:latest
         hostname: geodocker-geoserver
+        volumes_from: 
+          - geodocker-accumulo-tserver
         depends_on:
           - geodocker-accumulo-tserver
 volumes:
-  geodocker_dev_zookeeper:
-    external: true
-  geodocker_dev_hadoop_name:
-    external: true
-  geodocker_dev_hadoop_sname:
-    external: true
-  geodocker_dev_hadoop_data:
-    external: true
-  geodocker_dev_spark:
-    external: true
+  dev_data:
