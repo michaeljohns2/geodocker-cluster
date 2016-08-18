@@ -1,6 +1,6 @@
 FROM centos:7
 
-# Generate locally build base image
+# MLJ: Generate locally build base image
 MAINTAINER Michael Johns, Nathan Zimmerman, npzimmerman@gmail.com
 
 ENV USER root

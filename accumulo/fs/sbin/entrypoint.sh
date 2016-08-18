@@ -1,22 +1,38 @@
 #! /usr/bin/env bash
 set -eo pipefail
 
+###
+# MLJ: `sed -i.bak` command breaks inside docker container when using overlay storage driver
+# Commented out below with workaround.
+###
+
 # Run in all cases
 if [[ ! -v ${HADOOP_MASTER_ADDRESS} ]]; then
-  sed -i.bak "s/{HADOOP_MASTER_ADDRESS}/${HADOOP_MASTER_ADDRESS}/g" ${HADOOP_CONF_DIR}/core-site.xml
-  sed -i.bak "s/{HADOOP_MASTER_ADDRESS}/${HADOOP_MASTER_ADDRESS}/g" ${ACCUMULO_CONF_DIR}/accumulo-site.xml
+  #sed -i.bak "s/{HADOOP_MASTER_ADDRESS}/${HADOOP_MASTER_ADDRESS}/g" ${HADOOP_CONF_DIR}/core-site.xml
+  sed "s/{HADOOP_MASTER_ADDRESS}/${HADOOP_MASTER_ADDRESS}/g" ${HADOOP_CONF_DIR}/core-site.xml > /tmp/core-site.xml
+  mv /tmp/core-site.xml ${HADOOP_CONF_DIR}
+
+  #sed -i.bak "s/{HADOOP_MASTER_ADDRESS}/${HADOOP_MASTER_ADDRESS}/g" ${ACCUMULO_CONF_DIR}/accumulo-site.xml
+  sed "s/{HADOOP_MASTER_ADDRESS}/${HADOOP_MASTER_ADDRESS}/g" ${ACCUMULO_CONF_DIR}/accumulo-site.xml > /tmp/accumulo-site.xml
+  mv /tmp/accumulo-site.xml ${ACCUMULO_CONF_DIR}
 fi
 
 if [[ ! -v ${ACCUMULO_ZOOKEEPERS} ]]; then
-  sed -i.bak "s/{ACCUMULO_ZOOKEEPERS}/${ACCUMULO_ZOOKEEPERS}/g" ${ACCUMULO_CONF_DIR}/accumulo-site.xml
+  #sed -i.bak "s/{ACCUMULO_ZOOKEEPERS}/${ACCUMULO_ZOOKEEPERS}/g" ${ACCUMULO_CONF_DIR}/accumulo-site.xml
+  sed "s/{ACCUMULO_ZOOKEEPERS}/${ACCUMULO_ZOOKEEPERS}/g" ${ACCUMULO_CONF_DIR}/accumulo-site.xml > /tmp/accumulo-site.xml
+  mv /tmp/accumulo-site.xml ${ACCUMULO_CONF_DIR}
 fi
 
 if [[ ! -v ${ACCUMULO_SECRET} ]]; then
-  sed -i.bak "s/{ACCUMULO_SECRET}/${ACCUMULO_SECRET}/g" ${ACCUMULO_CONF_DIR}/accumulo-site.xml
+  #sed -i.bak "s/{ACCUMULO_SECRET}/${ACCUMULO_SECRET}/g" ${ACCUMULO_CONF_DIR}/accumulo-site.xml
+  sed "s/{ACCUMULO_SECRET}/${ACCUMULO_SECRET}/g" ${ACCUMULO_CONF_DIR}/accumulo-site.xml > /tmp/accumulo-site.xml
+  mv /tmp/accumulo-site.xml ${ACCUMULO_CONF_DIR}
 fi
 
 if [[ ! -v ${ACCUMULO_PASSWORD} ]]; then
-  sed -i.bak "s/{ACCUMULO_PASSWORD}/${ACCUMULO_PASSWORD}/g" ${ACCUMULO_CONF_DIR}/accumulo-site.xml
+  #sed -i.bak "s/{ACCUMULO_PASSWORD}/${ACCUMULO_PASSWORD}/g" ${ACCUMULO_CONF_DIR}/accumulo-site.xml
+  sed "s/{ACCUMULO_PASSWORD}/${ACCUMULO_PASSWORD}/g" ${ACCUMULO_CONF_DIR}/accumulo-site.xml > /tmp/accumulo-site.xml
+  mv /tmp/accumulo-site.xml ${ACCUMULO_CONF_DIR}
 fi
 
 # If second argument is provided and is "dev", proceed with production setup

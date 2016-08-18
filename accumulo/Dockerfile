@@ -1,20 +1,16 @@
 FROM local/geodocker-hadoop:latest
 
-# Using locally build base image
+# MLJ: Using locally build base image
 MAINTAINER Michael Johns, Pomadchin Grigory, daunnc@gmail.com
-
-# MLJ: Added root
-USER root
 
 ENV ACCUMULO_VERSION 1.7.2
 ENV ACCUMULO_HOME /opt/accumulo
 ENV ACCUMULO_CONF_DIR $ACCUMULO_HOME/conf
 ENV PATH $PATH:$ACCUMULO_HOME/bin
 
-# MLJ: Added `--no-same-owner`
 RUN set -x && \
     mkdir -p ${ACCUMULO_HOME} ${ACCUMULO_CONF_DIR} && \
-    curl -# http://apache-mirror.rbc.ru/pub/apache/accumulo/${ACCUMULO_VERSION}/accumulo-${ACCUMULO_VERSION}-bin.tar.gz | tar -xz --no-same-owner -C ${ACCUMULO_HOME} --strip-components=1 && \
+    curl -# http://apache-mirror.rbc.ru/pub/apache/accumulo/${ACCUMULO_VERSION}/accumulo-${ACCUMULO_VERSION}-bin.tar.gz | tar -xz -C ${ACCUMULO_HOME} --strip-components=1 && \
     cp ${ACCUMULO_HOME}/conf/examples/3GB/standalone/* ${ACCUMULO_CONF_DIR}/
 
 WORKDIR "${ACCUMULO_HOME}"
@@ -33,13 +29,16 @@ RUN yum -y install make gcc-c++
 
 RUN bash -c "bin/build_native_library.sh"
 
-# MLJ: Alter for overlay storage driver?
+# MLJ: Alter COPY for overlay storage driver
 #COPY ./fs /
-COPY ./fs/opt /opt
-COPY ./fs/sbin /sbin
-
-# MLJ: Added chown
-RUN chown -R root:root /opt
-RUN chown -R root:root /sbin
+RUN mkdir -p /opt/accumulo/conf
+COPY ./fs/opt/accumulo/conf/accumulo-env.sh /opt/accumulo/conf/
+COPY ./fs/opt/accumulo/conf/accumulo-site.xml /opt/accumulo/conf/
+COPY ./fs/opt/accumulo/conf/generic_logger.xml /opt/accumulo/conf/
+COPY ./fs/opt/accumulo/conf/monitor_logger.xml /opt/accumulo/conf/
+COPY ./fs/sbin/await-master-dev.sh /sbin/
+COPY ./fs/sbin/entrypoint.sh /sbin/
+COPY ./fs/sbin/load-iterators.sh /sbin/
+COPY ./fs/sbin/master-node-dev.sh /sbin/
 
 ENTRYPOINT [ "/sbin/entrypoint.sh" ]

@@ -1,10 +1,7 @@
 FROM local/geodocker-pbase:latest
 
-# Using locally build base image
+# MLJ: Using locally build base image
 MAINTAINER Michael Johns, Pomadchin Grigory, daunnc@gmail.com
-
-# MLJ: Added root
-USER root
 
 ENV CATALINA_OPTS="-Xmx4g -XX:MaxPermSize=512M -Duser.timezone=UTC -server -Djava.awt.headless=true"
 
@@ -53,10 +50,6 @@ RUN cd /opt/apache-tomcat-8.0.35/webapps/geoserver/WEB-INF/lib/ && \
   wget http://repo1.maven.org/maven2/org/apache/hadoop/hadoop-common/2.7.2/hadoop-common-2.7.2.jar && \
   wget http://repo1.maven.org/maven2/org/apache/hadoop/hadoop-hdfs/2.7.2/hadoop-hdfs-2.7.2.jar && \
   wget http://central.maven.org/maven2/org/apache/htrace/htrace-core/3.1.0-incubating/htrace-core-3.1.0-incubating.jar
-
-# MLJ: Added chown
-RUN chown -R root:root /opt
-RUN chown -R root:root /sbin
 
 EXPOSE 9090
 CMD ["/opt/apache-tomcat-8.0.35/bin/catalina.sh", "run"]

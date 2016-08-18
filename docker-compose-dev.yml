@@ -2,8 +2,12 @@ version: '2'
 services:
     geodocker-zookeeper:
         image: ${PULL_PREFIX}/geodocker-zookeeper:latest
+        ports:
+          - 2181:2181
+          - 2888:2888
+          - 3888:3888
         volumes:
-          - dev_data:/data
+          - data:/data
     geodocker-hadoop-name:
         image: ${PULL_PREFIX}/geodocker-hadoop:latest
         command: name dev
@@ -11,8 +15,8 @@ services:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
         ports:
           - 50070:50070
-        volumes_from:
-          - geodocker-zookeeper
+        volumes:
+          - data:/data
         depends_on:
           - geodocker-zookeeper
     geodocker-hadoop-sname:
@@ -20,8 +24,8 @@ services:
         command: sname dev
         environment:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
-        volumes_from:
-          - geodocker-hadoop-name
+        volumes:
+          - data:/data
         depends_on:
           - geodocker-hadoop-name
     geodocker-hadoop-data:
@@ -29,8 +33,8 @@ services:
         command: data dev
         environment:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
-        volumes_from:
-          - geodocker-hadoop-name
+        volumes:
+          - data:/data
         depends_on:
           - geodocker-hadoop-name
     geodocker-accumulo-master:
@@ -45,8 +49,6 @@ services:
           INSTANCE_NAME: gis
         volumes:
           - './accumulo/fs/sbin:/sbin:rw'
-        volumes_from: 
-          - geodocker-hadoop-data
         depends_on:
           - geodocker-hadoop-data
     geodocker-accumulo-gc:
@@ -58,8 +60,6 @@ services:
           ACCUMULO_ZOOKEEPERS: geodocker-zookeeper
           ACCUMULO_SECRET: ${ACC_SECRET}
           ACCUMULO_PASSWORD: ${ACC_PWD}
-        volumes_from: 
-          - geodocker-accumulo-master
         depends_on:
           - geodocker-accumulo-master
     geodocker-accumulo-monitor:
@@ -73,8 +73,6 @@ services:
           ACCUMULO_PASSWORD: ${ACC_PWD}
         ports:
           - 50095:50095
-        volumes_from: 
-          - geodocker-accumulo-master
         depends_on:
           - geodocker-accumulo-master
     geodocker-accumulo-tracer:
@@ -86,8 +84,6 @@ services:
           ACCUMULO_ZOOKEEPERS: geodocker-zookeeper
           ACCUMULO_SECRET: ${ACC_SECRET}
           ACCUMULO_PASSWORD: ${ACC_PWD}
-        volumes_from: 
-          - geodocker-accumulo-master
         depends_on:
           - geodocker-accumulo-master
     geodocker-accumulo-tserver:
@@ -99,8 +95,6 @@ services:
           ACCUMULO_ZOOKEEPERS: geodocker-zookeeper
           ACCUMULO_SECRET: ${ACC_SECRET}
           ACCUMULO_PASSWORD: ${ACC_PWD}
-        volumes_from: 
-          - geodocker-accumulo-master
         depends_on:
           - geodocker-accumulo-master
           - geodocker-accumulo-gc
@@ -117,8 +111,8 @@ services:
           MASTER: spark://geodocker-spark-master:7077
         ports:
           - 8080:8080
-        volumes_from: 
-          - geodocker-hadoop-data
+        volumes:
+          - data:/data
         depends_on:
           - geodocker-hadoop-data
     geodocker-spark-worker:
@@ -132,16 +126,13 @@ services:
           SPARK_WORKER_MEMORY: 16g
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
           SPARK_MASTER: geodocker-spark-master
-        volumes_from: 
-          - geodocker-spark-master
         depends_on:
           - geodocker-spark-master
     geodocker-geoserver:
         image: ${PULL_PREFIX}/geodocker-geoserver:latest
         hostname: geodocker-geoserver
-        volumes_from: 
-          - geodocker-accumulo-tserver
         depends_on:
           - geodocker-accumulo-tserver
 volumes:
-  dev_data:
+  data:
+
