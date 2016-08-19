@@ -3,6 +3,7 @@
 Docker containers with prepared environment to run [GeoTrellis](https://github.com/geotrellis/geotrellis), [GeoMesa](https://github.com/locationtech/geomesa), and [GeoWave](https://github.com/ngageoint/geowave).
 
 *Current version (latest)*: **0.2.1**
+
 __MLJ: THIS IS FORK OF THE ORIGINAL [REPOSITORY](https://github.com/geotrellis/geodocker-cluster) FOR VARIOUS CUSTOMIZATIONS TO INCLUDE WORKING WITH OVERLAY STORAGE DRIVER.__
 
 ## Environment
@@ -30,9 +31,9 @@ Images:
 A more detailed description how to run and to build containers can be found in each image directory.
 
 * If you want to use storage overlay and have docker repo configure in yum (__MLJ: added__)
-  * __ONLY DO THIS IF (1) YOU ARE RUNNING CENTOS 7 (2) YOU UNDERSTAND WHAT IT MEANS AND (3) YOU ARE WILLING TO HAVE ALL IMAGES DELETED!!!__
-  * overlay `./conf_scripts/docker_config/docker_erase_use_overlayfs.sh` __THIS DELETES EXISTING IMAGES__
-  * back to default `./conf_scripts/docker_config/docker_erase_use_default_storage_driver.sh` __THIS DELETES EXISTING IMAGES__
+  * ONLY DO THIS IF (1) YOU ARE RUNNING CENTOS 7 (2) YOU UNDERSTAND WHAT IT MEANS AND (3) __YOU ARE WILLING TO HAVE ALL IMAGES DELETED!!!__
+  * overlay `./conf_scripts/docker_config/docker_erase_use_overlayfs.sh` __DELETES ALL IMAGES__
+  * back to default `./conf_scripts/docker_config/docker_erase_use_default_storage_driver.sh` __DELETES ALL IMAGES__
 
 * Change environment variables for build (__MLJ: added__)
   * `vi .env`
@@ -115,6 +116,7 @@ docker-compose -f stack.yml up
 
 __MLJ: changed__
 For more customized control (including the beginnings of persisted containers):
+
 _from terminal1_
 ```bash
 docker-compose -f core.yml up 
