@@ -1,45 +1,48 @@
 version: '2'
-services:
+services:   
     geodocker-zookeeper:
-        image: ${PULL_PREFIX}/geodocker-zookeeper:latest
+        image: ${PULL_PREFIX}/geodocker-zookeeper
         ports:
-          - 2181:2181
-          - 2888:2888
-          - 3888:3888
-        volumes:
-          - data:/data
+          - '2181:2181'
+        volumes_from:
+          - container:${DATA_CONTAINER_ZOOKEEPER}
     geodocker-hadoop-name:
-        image: ${PULL_PREFIX}/geodocker-hadoop:latest
+        image: ${PULL_PREFIX}/geodocker-hadoop
         command: name dev
         environment:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
         ports:
-          - 50070:50070
-        volumes:
-          - data:/data
+          - '50070:50070'
+        volumes_from:
+          - container:${DATA_CONTAINER_HADOOP_NAME}
         depends_on:
           - geodocker-zookeeper
     geodocker-hadoop-sname:
-        image: ${PULL_PREFIX}/geodocker-hadoop:latest
+        image: ${PULL_PREFIX}/geodocker-hadoop
         command: sname dev
         environment:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
-        volumes:
-          - data:/data
+        ports:
+          - '50090:50090'
+        volumes_from:
+          - container:${DATA_CONTAINER_HADOOP_SNAME}
         depends_on:
           - geodocker-hadoop-name
     geodocker-hadoop-data:
-        image: ${PULL_PREFIX}/geodocker-hadoop:latest
+        image: ${PULL_PREFIX}/geodocker-hadoop
         command: data dev
         environment:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
-        volumes:
-          - data:/data
+        ports:
+# The host port is randomly assigned by Docker, to allow scaling to multiple DataNodes on the same host
+          - '50075'
+        volumes_from:
+          - container:${DATA_CONTAINER_HADOOP}
         depends_on:
           - geodocker-hadoop-name
     geodocker-accumulo-master:
         # choose one of images (geodocker-accumulo-gis / geodocker-accumulo)
-        image: ${PULL_PREFIX}/geodocker-accumulo-gis:latest
+        image: ${PULL_PREFIX}/geodocker-accumulo-gis
         command: master dev
         environment:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
@@ -53,7 +56,7 @@ services:
           - geodocker-hadoop-data
     geodocker-accumulo-gc:
         # choose one of images (geodocker-accumulo-gis / geodocker-accumulo)
-        image: ${PULL_PREFIX}/geodocker-accumulo-gis:latest
+        image: ${PULL_PREFIX}/geodocker-accumulo-gis
         command: gc dev
         environment:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
@@ -64,7 +67,7 @@ services:
           - geodocker-accumulo-master
     geodocker-accumulo-monitor:
       # choose one of images (geodocker-accumulo-gis / geodocker-accumulo)
-        image: ${PULL_PREFIX}/geodocker-accumulo-gis:latest
+        image: ${PULL_PREFIX}/geodocker-accumulo-gis
         command: monitor dev
         environment:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
@@ -72,12 +75,12 @@ services:
           ACCUMULO_SECRET: ${ACC_SECRET}
           ACCUMULO_PASSWORD: ${ACC_PWD}
         ports:
-          - 50095:50095
+          - '50095:50095'
         depends_on:
           - geodocker-accumulo-master
     geodocker-accumulo-tracer:
         # choose one of images (geodocker-accumulo-gis / geodocker-accumulo)
-        image: ${PULL_PREFIX}/geodocker-accumulo-gis:latest
+        image: ${PULL_PREFIX}/geodocker-accumulo-gis
         command: tracer dev
         environment:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
@@ -88,7 +91,7 @@ services:
           - geodocker-accumulo-master
     geodocker-accumulo-tserver:
         # choose one of images (geodocker-accumulo-gis / geodocker-accumulo)
-        image: ${PULL_PREFIX}/geodocker-accumulo-gis:latest
+        image: ${PULL_PREFIX}/geodocker-accumulo-gis
         command: tserver dev
         environment:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
@@ -101,7 +104,7 @@ services:
           - geodocker-accumulo-monitor
           - geodocker-accumulo-tracer
     geodocker-spark-master:
-        image: ${PULL_PREFIX}/geodocker-spark:latest
+        image: ${PULL_PREFIX}/geodocker-spark
         command: master dev
         hostname: geodocker-spark-master
         environment:
@@ -111,12 +114,12 @@ services:
           MASTER: spark://geodocker-spark-master:7077
         ports:
           - 8080:8080
-        volumes:
-          - data:/data
+        #volumes:
+         # - './data/spark:/data/spark:rw'
         depends_on:
           - geodocker-hadoop-data
     geodocker-spark-worker:
-        image: ${PULL_PREFIX}/geodocker-spark:latest
+        image: ${PULL_PREFIX}/geodocker-spark
         command: worker dev
         hostname: geodocker-spark-worker
         environment:
@@ -129,10 +132,12 @@ services:
         depends_on:
           - geodocker-spark-master
     geodocker-geoserver:
-        image: ${PULL_PREFIX}/geodocker-geoserver:latest
-        hostname: geodocker-geoserver
+        image: ${PULL_PREFIX}/geodocker-geoserver
+        hostname: geodocker-geoserver        
         depends_on:
           - geodocker-accumulo-tserver
-volumes:
-  data:
+networks:
+  default:
+    external:
+      name: ${CLUSTER_NET}
 

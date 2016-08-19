@@ -3,36 +3,36 @@ services:
     geodocker-pbase:
         build:
           context: ./base
-          # choose one of images (centos.dockerfile | ubuntu.dockerfile)
+          # choose one of images (centos.dockerfile / ubuntu.dockerfile)
           dockerfile: centos.dockerfile
-        image: ${PULL_PREFIX}/geodocker-pbase:latest
+        image: geodocker-pbase:latest
     geodocker-zookeeper:
         build: ./zookeeper
-        image: ${PULL_PREFIX}/geodocker-zookeeper:latest
+        image: geotrellis/geodocker-zookeeper:latest
         depends_on:
           - geodocker-pbase
     geodocker-hadoop:
         build: ./hadoop
-        image: ${PULL_PREFIX}/geodocker-hadoop:latest
+        image: geotrellis/geodocker-hadoop:latest
         depends_on:
           - geodocker-zookeeper
     geodocker-accumulo:
         build: ./accumulo
-        image: ${PULL_PREFIX}/geodocker-accumulo:latest
+        image: geotrellis/geodocker-accumulo:latest
         depends_on:
           - geodocker-hadoop
     geodocker-accumulo-gis:
         build: ./extras/accumulo-gis
-        image: ${PULL_PREFIX}/geodocker-accumulo-gis:latest
+        image: geotrellis/geodocker-accumulo-gis:latest
         depends_on:
           - geodocker-accumulo
     geodocker-spark:
         build: ./spark
-        image: ${PULL_PREFIX}/geodocker-spark:latest
+        image: geotrellis/geodocker-spark:latest
         depends_on:
           - geodocker-hadoop
     geodocker-geoserver:
         build: ./extras/geoserver
-        image: ${PULL_PREFIX}/geodocker-geoserver:latest
+        image: geotrellis/geodocker-geoserver:latest
         depends_on:
           - geodocker-spark
