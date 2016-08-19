@@ -3,7 +3,6 @@
 Docker containers with prepared environment to run [GeoTrellis](https://github.com/geotrellis/geotrellis), [GeoMesa](https://github.com/locationtech/geomesa), and [GeoWave](https://github.com/ngageoint/geowave).
 
 *Current version (latest)*: **0.2.1**
-__MLJ: THIS IS FORK OF THE ORIGINAL [REPOSITORY](https://github.com/geotrellis/geodocker-cluster) FOR VARIOUS CUSTOMIZATIONS TO INCLUDE WORKING WITH OVERLAY STORAGE DRIVER.__
 
 ## Environment
 
@@ -29,36 +28,13 @@ Images:
 
 A more detailed description how to run and to build containers can be found in each image directory.
 
-* If you want to use storage overlay and have docker repo configure in yum (__MLJ: added__)
-  * __ONLY DO THIS IF (1) YOU ARE RUNNING CENTOS 7 (2) YOU UNDERSTAND WHAT IT MEANS AND (3) YOU ARE WILLING TO HAVE ALL IMAGES DELETED!!!__
-  * overlay `./conf_scripts/docker_config/docker_erase_use_overlayfs.sh` __THIS DELETES EXISTING IMAGES__
-  * back to default `./conf_scripts/docker_config/docker_erase_use_default_storage_driver.sh` __THIS DELETES EXISTING IMAGES__
-
-* Change environment variables for build (__MLJ: added__)
-  * `vi .env`
-
 * Build all images
   * `docker-compose build`
-  * clean all images with `./conf_scripts/build_destroy_images/clean_images.sh` (__MLJ: added__)
 
-* Create the shared network used in provided yml files -- this is 1x (__MLJ: added__)
-  * `./conf_scripts/create_network.sh`
-  * tear down with `./conf_scripts/remove_network.sh`
-
-* Create the shared data containers used in provided yml files -- this is 1x (__MLJ: added__)
-  * `./conf_scripts/create_data_containers.sh `
-  * tear down with `./conf_scripts/remove_data_containers.sh`
-
-* Correct swappiness setting for Accumulo -- this is 1x (__MLJ: added__)
-  * `./conf_scripts/accumulo_config/accumulo_swappiness.sh`
-  * make permanent by adding 'vm.swappiness=10' to '/etc/sysctl.conf'
-
-* Publish all images (_optional: this is to quay.io -- requires an account_)
+* Publish all images
   * `./.docker/release -t=latest --publish`
 
 ## Run a multinode cluster
-
-__MLJ: HAVE NOT DEPLOYED TO MULTINODE YET!__
 
 Example of starting a multinode cluster on three machines. Node1 (hostname GeoServer1) is a master node, Node2 (hostname GeoServer2) and Node3 (hostname GeoServer3) slave nodes. Zookeeper strats minimum on three nodes.
 
@@ -106,37 +82,10 @@ Example of starting a multinode cluster on three machines. Node1 (hostname GeoSe
 
 ## Run a local multinode cluster
 
-We can simulate a multinode cluster on a single machine using Docker Compose. [stack.yml](./stack.yml) is an example of instrutions to rise a singlenode cluster, adding additional services description for slave nodes allowed to raise any nodes amount (limited by host machine memory).
+We can simulate a multinode cluster on a single machine using Docker Compose. [docker-compose-dev.yml](./docker-compose-dev.yml) is an example of instrutions to rise a singlenode cluster, adding additional services description for slave nodes allwos to rise any nodes amount (limited by host machine memory).
 
 ```bash
-# MLJ: changed, command used to be `docker-compose -f docker-compose-dev.yml up`
-docker-compose -f stack.yml up 
-```
-
-__MLJ: changed__
-For more customized control (including the beginnings of persisted containers):
-_from terminal1_
-```bash
-docker-compose -f core.yml up 
-```
-
-_from terminal2_
-```bash
-docker-compose -f accumulo.yml up 
-```
-
-_this could be continued for additional services, the benefit being that core services can be separated from those which depend on it_
-
-#### Tear Down
-```bash
-# e.g. tear down accumulo, keeping core
-docker-compose -f accumulo.yml down 
-```
-
-#### Stop
-```bash
-# e.g. stop stack with out removing containers
-docker-compose -f stack.yml stop 
+docker-compose -f docker-compose-dev.yml up 
 ```
 
 ## License

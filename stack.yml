@@ -3,9 +3,7 @@ services:
     geodocker-zookeeper:
         image: ${PULL_PREFIX}/geodocker-zookeeper
         ports:
-          - '2181:2181'
-        volumes_from:
-          - container:${DATA_CONTAINER_ZOOKEEPER}
+          - '2181:2181'        
     geodocker-hadoop-name:
         image: ${PULL_PREFIX}/geodocker-hadoop
         command: name dev
@@ -15,7 +13,7 @@ services:
           - '50070:50070'
         volumes_from:
           - container:${DATA_CONTAINER_HADOOP_NAME}
-        depends_on:
+        links:
           - geodocker-zookeeper
     geodocker-hadoop-sname:
         image: ${PULL_PREFIX}/geodocker-hadoop
@@ -26,7 +24,7 @@ services:
           - '50090:50090'
         volumes_from:
           - container:${DATA_CONTAINER_HADOOP_SNAME}
-        depends_on:
+        links:
           - geodocker-hadoop-name
     geodocker-hadoop-data:
         image: ${PULL_PREFIX}/geodocker-hadoop
@@ -34,11 +32,12 @@ services:
         environment:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
         ports:
-# The host port is randomly assigned by Docker, to allow scaling to multiple DataNodes on the same host
-          - '50075'
+# The host port can be randomly assigned by Docker, to allow scaling to multiple DataNodes on the same host
+# To enable, provide '<port>' instead of '<port>:<port>'
+          - '50075:50075'
         volumes_from:
           - container:${DATA_CONTAINER_HADOOP}
-        depends_on:
+        links:
           - geodocker-hadoop-name
     geodocker-accumulo-master:
         # choose one of images (geodocker-accumulo-gis / geodocker-accumulo)

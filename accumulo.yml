@@ -1,0 +1,70 @@
+version: '2'
+services:   
+    geodocker-accumulo-master:
+        # choose one of images (geodocker-accumulo-gis / geodocker-accumulo)
+        image: ${PULL_PREFIX}/geodocker-accumulo-gis
+        command: master dev
+        environment:
+          HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
+          ACCUMULO_ZOOKEEPERS: geodocker-zookeeper
+          ACCUMULO_SECRET: ${ACC_SECRET}
+          ACCUMULO_PASSWORD: ${ACC_PWD}
+          INSTANCE_NAME: gis
+        volumes:
+          - './accumulo/fs/sbin:/sbin:rw'
+        external_links:
+          - geodocker-hadoop-data
+    geodocker-accumulo-gc:
+        # choose one of images (geodocker-accumulo-gis / geodocker-accumulo)
+        image: ${PULL_PREFIX}/geodocker-accumulo-gis
+        command: gc dev
+        environment:
+          HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
+          ACCUMULO_ZOOKEEPERS: geodocker-zookeeper
+          ACCUMULO_SECRET: ${ACC_SECRET}
+          ACCUMULO_PASSWORD: ${ACC_PWD}
+        depends_on:
+          - geodocker-accumulo-master
+    geodocker-accumulo-monitor:
+      # choose one of images (geodocker-accumulo-gis / geodocker-accumulo)
+        image: ${PULL_PREFIX}/geodocker-accumulo-gis
+        command: monitor dev
+        environment:
+          HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
+          ACCUMULO_ZOOKEEPERS: geodocker-zookeeper
+          ACCUMULO_SECRET: ${ACC_SECRET}
+          ACCUMULO_PASSWORD: ${ACC_PWD}
+        ports:
+          - '50095:50095'
+        depends_on:
+          - geodocker-accumulo-master
+    geodocker-accumulo-tracer:
+        # choose one of images (geodocker-accumulo-gis / geodocker-accumulo)
+        image: ${PULL_PREFIX}/geodocker-accumulo-gis
+        command: tracer dev
+        environment:
+          HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
+          ACCUMULO_ZOOKEEPERS: geodocker-zookeeper
+          ACCUMULO_SECRET: ${ACC_SECRET}
+          ACCUMULO_PASSWORD: ${ACC_PWD}
+        depends_on:
+          - geodocker-accumulo-master
+    geodocker-accumulo-tserver:
+        # choose one of images (geodocker-accumulo-gis / geodocker-accumulo)
+        image: ${PULL_PREFIX}/geodocker-accumulo-gis
+        command: tserver dev
+        environment:
+          HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
+          ACCUMULO_ZOOKEEPERS: geodocker-zookeeper
+          ACCUMULO_SECRET: ${ACC_SECRET}
+          ACCUMULO_PASSWORD: ${ACC_PWD}
+        depends_on:
+          - geodocker-accumulo-master
+          - geodocker-accumulo-gc
+          - geodocker-accumulo-monitor
+          - geodocker-accumulo-tracer
+networks:
+  default:
+    external:
+      name: ${CLUSTER_NET}
+

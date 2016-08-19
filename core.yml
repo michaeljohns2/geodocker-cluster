@@ -1,0 +1,46 @@
+version: '2'
+services:   
+    geodocker-zookeeper:
+        image: ${PULL_PREFIX}/geodocker-zookeeper
+        ports:
+          - '2181:2181'
+    geodocker-hadoop-name:
+        image: ${PULL_PREFIX}/geodocker-hadoop
+        command: name dev
+        environment:
+          HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
+        ports:
+          - '50070:50070'
+        volumes_from:
+          - container:${DATA_CONTAINER_HADOOP_NAME}
+        links:
+          - geodocker-zookeeper
+    geodocker-hadoop-sname:
+        image: ${PULL_PREFIX}/geodocker-hadoop
+        command: sname dev
+        environment:
+          HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
+        ports:
+          - '50090:50090'
+        volumes_from:
+          - container:${DATA_CONTAINER_HADOOP_SNAME}
+        links:
+          - geodocker-hadoop-name
+    geodocker-hadoop-data:
+        image: ${PULL_PREFIX}/geodocker-hadoop
+        command: data dev
+        environment:
+          HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
+        ports:
+# The host port can be randomly assigned by Docker, to allow scaling to multiple DataNodes on the same host
+# To enable, provide '<port>' instead of '<port>:<port>'
+          - '50075:50075'
+        volumes_from:
+          - container:${DATA_CONTAINER_HADOOP}
+        links:
+          - geodocker-hadoop-name
+networks:
+  default:
+    external:
+      name: ${CLUSTER_NET}
+
