@@ -1,9 +1,10 @@
 version: '2'
 services:   
+# THIS IS THE CORE STACK (ZOOKEEPER + HADOOP)
     geodocker-zookeeper:
         image: ${PULL_PREFIX}/geodocker-zookeeper
         ports:
-          - '2181:2181'
+          - '2181:2181'       
     geodocker-hadoop-name:
         image: ${PULL_PREFIX}/geodocker-hadoop
         command: name dev
@@ -13,7 +14,7 @@ services:
           - '50070:50070'
         volumes_from:
           - container:${DATA_CONTAINER_HADOOP_NAME}
-        links:
+        depends_on:
           - geodocker-zookeeper
     geodocker-hadoop-sname:
         image: ${PULL_PREFIX}/geodocker-hadoop
@@ -24,7 +25,7 @@ services:
           - '50090:50090'
         volumes_from:
           - container:${DATA_CONTAINER_HADOOP_SNAME}
-        links:
+        depends_on:
           - geodocker-hadoop-name
     geodocker-hadoop-data:
         image: ${PULL_PREFIX}/geodocker-hadoop
@@ -37,7 +38,7 @@ services:
           - '50075:50075'
         volumes_from:
           - container:${DATA_CONTAINER_HADOOP}
-        links:
+        depends_on:
           - geodocker-hadoop-name
 networks:
   default:

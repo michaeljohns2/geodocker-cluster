@@ -1,0 +1,34 @@
+version: '2'
+services:   
+# THIS IS SPARK (ASSUMES CORE IS UP)    
+    geodocker-spark-master:
+        image: ${PULL_PREFIX}/geodocker-spark
+        command: master dev
+        hostname: geodocker-spark-master
+        environment:
+          SPARK_DAEMON_MEMORY: 2g
+          SPARK_SUBMIT_DRIVER_MEMORY: 1g
+          HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
+          MASTER: spark://geodocker-spark-master:7077
+        ports:
+          - 8080:8080       
+        external_links:
+          - geodocker-hadoop-data
+    geodocker-spark-worker:
+        image: ${PULL_PREFIX}/geodocker-spark
+        command: worker dev
+        hostname: geodocker-spark-worker
+        environment:
+          SPARK_DAEMON_MEMORY: 2g
+          SPARK_SUBMIT_DRIVER_MEMORY: 1g
+          SPARK_WORKER_CORES: 8
+          SPARK_WORKER_MEMORY: 16g
+          HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
+          SPARK_MASTER: geodocker-spark-master
+        depends_on:
+          - geodocker-spark-master
+networks:
+  default:
+    external:
+      name: ${CLUSTER_NET}
+

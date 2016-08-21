@@ -1,5 +1,6 @@
 version: '2'
 services:   
+# THIS IS ACCUMULO (ASSUMES CORE IS UP)
     geodocker-accumulo-master:
         # choose one of images (geodocker-accumulo-gis / geodocker-accumulo)
         image: ${PULL_PREFIX}/geodocker-accumulo-gis
@@ -9,7 +10,7 @@ services:
           ACCUMULO_ZOOKEEPERS: geodocker-zookeeper
           ACCUMULO_SECRET: ${ACC_SECRET}
           ACCUMULO_PASSWORD: ${ACC_PWD}
-          INSTANCE_NAME: gis
+          INSTANCE_NAME: gis 
         volumes:
           - './accumulo/fs/sbin:/sbin:rw'
         external_links:

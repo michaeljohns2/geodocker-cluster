@@ -127,18 +127,24 @@ _from terminal2_
 docker-compose -f accumulo.yml up 
 ```
 
-_this could be continued for additional services, the benefit being that core services can be separated from those which depend on it_
+_this could be continued for additional services, the benefit being that core services can be separated from those which depend on it, see [spark.yml](./spark.yml) and [geoserver.yml](./geoserver.yml)._
 
 #### Tear Down
 ```bash
-# e.g. tear down accumulo, keeping core
+# e.g. tear down accumulo, keeping core (it is ok to use `down` to tear down containers not part of core)
 docker-compose -f accumulo.yml down 
 ```
 
 #### Stop
 ```bash
-# e.g. stop stack with out removing containers
-docker-compose -f stack.yml stop 
+# e.g. stop core with out removing containers (recommend `stop` over `down` for dev persistence strategy)
+docker-compose -f core.yml stop 
+```
+
+#### Start
+```bash
+# e.g. start core with out removing containers (recommend `start` after a `stop` for dev persistence strategy)
+docker-compose -f core.yml start 
 ```
 
 ## License

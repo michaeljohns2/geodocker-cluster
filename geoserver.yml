@@ -1,0 +1,13 @@
+version: '2'
+services:   
+# THIS IS GEOSERVER (ASSUMES CORE + ACCUMULO IS UP)  
+    geodocker-geoserver:
+        image: ${PULL_PREFIX}/geodocker-geoserver
+        hostname: geodocker-geoserver            
+        external_links:
+          - geodocker-accumulo-tserver
+networks:
+  default:
+    external:
+      name: ${CLUSTER_NET}
+

@@ -17,6 +17,10 @@ function continueOrQuit {
     esac	       
 } 
 
+################################################################
+# MLJ: THIS IS THE CORE SET OF CONTAINERS NEEDED FOR PERSISTENCE
+################################################################
+
 #name of data container for hadoop-name
 DATA_CONTAINER_HADOOP_NAME="${1:-$DATA_CONTAINER_HADOOP_NAME}"
 
@@ -26,27 +30,22 @@ DATA_CONTAINER_HADOOP_SNAME="${2:-$DATA_CONTAINER_HADOOP_SNAME}"
 #name of data container for hadoop-data
 DATA_CONTAINER_HADOOP="${3:-$DATA_CONTAINER_HADOOP}"
 
-#name of data container for accumulo (master)
-DATA_CONTAINER_ACCUMULO="${4:-$DATA_CONTAINER_ACCUMULO}"
-
 ## VERIFY OPERATION
 echo "... USING THE FOLLOWING VARIABLES (SHOULD NOT BE EMPTY! YOU CAN PROVIDE VALUES AS ARGS):"
 echo "ARG1 | DATA_CONTAINER_HADOOP_NAME: '$DATA_CONTAINER_HADOOP_NAME'"
 echo "ARG2 | DATA_CONTAINER_HADOOP_SNAME: '$DATA_CONTAINER_HADOOP_SNAME'"
 echo "ARG3 | DATA_CONTAINER_HADOOP: '$DATA_CONTAINER_HADOOP'"
-echo "ARG4 | DATA_CONTAINER_ACCUMULO: '$DATA_CONTAINER_ACCUMULO'"
 continueOrQuit ''
 
 ## ON CONTINUE
 # this script will remove the data containers for hadoop
-# the data containers are used with volumes_from directive in docker-compose-dev.yml
+# the data containers are used with volumes_from directive in yml files
 
 docker rm ${DATA_CONTAINER_HADOOP_NAME}
 docker rm ${DATA_CONTAINER_HADOOP_SNAME}
 docker rm ${DATA_CONTAINER_HADOOP}
-docker rm ${DATA_CONTAINER_ACCUMULO}
 
-echo "...expect to not see the new data containers"
+echo "...expect not to see the data containers"
 echo "do you see them in 'docker ps -a'?"
 docker ps -a
 

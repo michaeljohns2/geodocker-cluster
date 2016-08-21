@@ -1,9 +1,12 @@
 version: '2'
 services:   
+# THIS IS A FULL STACK (SHUT-DOWN ALL ELSE PRIOR)
+# CAN START CORE FIRST, THEN START OTHERS INDIVIDUALLY
+# e.g. `docker-compose -f core.yml up` then `docker-compose -f accumulo.yml up` etc.
     geodocker-zookeeper:
         image: ${PULL_PREFIX}/geodocker-zookeeper
         ports:
-          - '2181:2181'        
+          - '2181:2181'                
     geodocker-hadoop-name:
         image: ${PULL_PREFIX}/geodocker-hadoop
         command: name dev
@@ -112,9 +115,7 @@ services:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
           MASTER: spark://geodocker-spark-master:7077
         ports:
-          - 8080:8080
-        #volumes:
-         # - './data/spark:/data/spark:rw'
+          - 8080:8080        
         depends_on:
           - geodocker-hadoop-data
     geodocker-spark-worker:
@@ -132,7 +133,7 @@ services:
           - geodocker-spark-master
     geodocker-geoserver:
         image: ${PULL_PREFIX}/geodocker-geoserver
-        hostname: geodocker-geoserver        
+        hostname: geodocker-geoserver            
         depends_on:
           - geodocker-accumulo-tserver
 networks:
