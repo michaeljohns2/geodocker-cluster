@@ -46,10 +46,6 @@ A more detailed description how to run and to build containers can be found in e
   * `./conf_scripts/create_network.sh`
   * tear down with `./conf_scripts/remove_network.sh`
 
-* Create the shared data containers used in provided yml files -- this is 1x (__MLJ: added__)
-  * `./conf_scripts/create_data_containers.sh `
-  * tear down with `./conf_scripts/remove_data_containers.sh`
-
 * Correct swappiness setting for Accumulo -- this is 1x (__MLJ: added__)
   * `./conf_scripts/accumulo_config/accumulo_swappiness.sh`
   * make permanent by adding 'vm.swappiness=10' to '/etc/sysctl.conf'
@@ -61,7 +57,7 @@ A more detailed description how to run and to build containers can be found in e
 
 __MLJ: HAVE NOT DEPLOYED TO MULTINODE YET!__
 
-Example of starting a multinode cluster on three machines. Node1 (hostname GeoServer1) is a master node, Node2 (hostname GeoServer2) and Node3 (hostname GeoServer3) slave nodes. Zookeeper strats minimum on three nodes.
+Example of starting a multinode cluster on three machines. Node1 (hostname GeoServer1) is a master node, Node2 (hostname GeoServer2) and Node3 (hostname GeoServer3) slave nodes. Zookeeper starts minimum on three nodes.
 
 ```bash
 ## Zookeepers
@@ -115,7 +111,7 @@ docker-compose -f stack.yml up
 ```
 
 __MLJ: changed__
-For more customized control (including the beginnings of persisted containers):
+For more customized control (including the beginnings of persisted containers by only stopping core.yml):
 
 _from terminal1_
 ```bash

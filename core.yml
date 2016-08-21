@@ -12,8 +12,9 @@ services:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
         ports:
           - '50070:50070'
-        volumes_from:
-          - container:${DATA_CONTAINER_HADOOP_NAME}
+        #volumes_from:
+         # half-baked idea
+         # - container:${DATA_CONTAINER_HADOOP_NAME}
         depends_on:
           - geodocker-zookeeper
     geodocker-hadoop-sname:
@@ -23,8 +24,9 @@ services:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
         ports:
           - '50090:50090'
-        volumes_from:
-          - container:${DATA_CONTAINER_HADOOP_SNAME}
+        #volumes_from:
+         # half-baked idea
+         # - container:${DATA_CONTAINER_HADOOP_SNAME}
         depends_on:
           - geodocker-hadoop-name
     geodocker-hadoop-data:
@@ -36,8 +38,9 @@ services:
 # The host port can be randomly assigned by Docker, to allow scaling to multiple DataNodes on the same host
 # To enable, provide '<port>' instead of '<port>:<port>'
           - '50075:50075'
-        volumes_from:
-          - container:${DATA_CONTAINER_HADOOP}
+        #volumes_from:
+         # half-baked idea
+         # - container:${DATA_CONTAINER_HADOOP}
         depends_on:
           - geodocker-hadoop-name
 networks:

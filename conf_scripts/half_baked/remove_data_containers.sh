@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 # pull in variables from .env in parent dir
-source ../.env
+source ../../.env
 
 function continueOrQuit {
   read -r -p "${1} Continue? [y/N] " response
