@@ -1,6 +1,6 @@
 version: '2'
 services:   
-# THIS IS SPARK (ASSUMES CORE IS UP)    
+# THIS IS SPARK (ASSUMES ZOOKEEPER + HADOOP IS UP)
     geodocker-spark-master:
         image: ${PULL_PREFIX}/geodocker-spark
         command: master dev
@@ -11,9 +11,10 @@ services:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
           MASTER: spark://geodocker-spark-master:7077
         ports:
-          - 8080:8080       
-        external_links:
-          - geodocker-hadoop-data
+          - '8080:8080'
+          - '7077:7077'
+        volumes:
+          - './data/spark:/data/spark:rw'
     geodocker-spark-worker:
         image: ${PULL_PREFIX}/geodocker-spark
         command: worker dev

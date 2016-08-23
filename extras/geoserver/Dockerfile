@@ -51,5 +51,7 @@ RUN cd /opt/apache-tomcat-8.0.35/webapps/geoserver/WEB-INF/lib/ && \
   wget http://repo1.maven.org/maven2/org/apache/hadoop/hadoop-hdfs/2.7.2/hadoop-hdfs-2.7.2.jar && \
   wget http://central.maven.org/maven2/org/apache/htrace/htrace-core/3.1.0-incubating/htrace-core-3.1.0-incubating.jar
 
-EXPOSE 9090
+# DOCUMENTATION ONLY
+#EXPOSE 9090
+
 CMD ["/opt/apache-tomcat-8.0.35/bin/catalina.sh", "run"]

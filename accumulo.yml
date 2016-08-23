@@ -1,6 +1,6 @@
 version: '2'
 services:   
-# THIS IS ACCUMULO (ASSUMES CORE IS UP)
+# THIS IS ACCUMULO (ASSUMES HADOOP + ZOOKEEPER IS UP)
     geodocker-accumulo-master:
         # choose one of images (geodocker-accumulo-gis / geodocker-accumulo)
         image: ${PULL_PREFIX}/geodocker-accumulo-gis
@@ -12,9 +12,7 @@ services:
           ACCUMULO_PASSWORD: ${ACC_PWD}
           INSTANCE_NAME: gis 
         volumes:
-          - './accumulo/fs/sbin:/sbin:rw'
-        external_links:
-          - geodocker-hadoop-data
+          - './accumulo/fs/sbin:/sbin:rw'        
     geodocker-accumulo-gc:
         # choose one of images (geodocker-accumulo-gis / geodocker-accumulo)
         image: ${PULL_PREFIX}/geodocker-accumulo-gis

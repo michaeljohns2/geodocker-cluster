@@ -14,17 +14,17 @@ function continueOrQuit {
         echo "...aborting operation"
         exit 1
         ;;
-    esac	       
+    esac
 } 
 
 ## VERIFY OPERATION
-echo "THIS WILL <<<REMOVE>>> CONTAINERS FROM THE FOLLOWING YML FILES:"
+echo "THIS WILL <<<DESTROY/REMOVE>>> CONTAINERS FROM THE FOLLOWING YML FILES (DON'T PASS EXTENSION):"
 for var in "$@"
 do
     echo "${var}.yml"
 done
-echo "THEN IT WILL <<<STOP>>> CONTAINERS FROM CORE.YML."
-echo "MAKE SURE YOU ARE NOT LEAVING ANY ORPHANS!"
+echo "... hint: use 'stack' as an arg for everything."
+echo "... hint: data volumes will be persisted for next launch."
 continueOrQuit ''
 
 ## ON CONTINUE
@@ -34,10 +34,7 @@ do
     echo "... removing containers in ${var}.yml"
     docker-compose -f "${var}.yml" down
 done
-
-echo "...stopping (not removing) core containers, i.e. zookeeper + hadoop."
-docker-compose -f core.yml stop
-
-echo "...expect to see the core containers stopped (and any others that were passed removed)"
+echo " "
+echo "...expect to see the containers removed for passed yml filenames."
 echo "do you see them in 'docker ps -a'?"
 docker ps -a

@@ -4,7 +4,7 @@ Docker containers with prepared environment to run [GeoTrellis](https://github.c
 
 *Current version (latest)*: **0.2.1**
 
-__MLJ: THIS IS FORK OF THE ORIGINAL [REPOSITORY](https://github.com/geotrellis/geodocker-cluster) FOR VARIOUS CUSTOMIZATIONS TO INCLUDE WORKING WITH OVERLAY STORAGE DRIVER.__
+__MLJ: THIS IS FORK OF THE ORIGINAL [REPOSITORY](https://github.com/geotrellis/geodocker-cluster) FOR VARIOUS CUSTOMIZATIONS TO INCLUDE WORKING WITH OVERLAY STORAGE DRIVER AND HANDLING PERSISTENCE.__
 
 ## Environment
 
@@ -31,16 +31,16 @@ Images:
 A more detailed description how to run and to build containers can be found in each image directory.
 
 * If you want to use storage overlay and have docker repo configure in yum (__MLJ: added__)
-  * ONLY DO THIS IF (1) YOU ARE RUNNING CENTOS 7 (2) YOU UNDERSTAND WHAT IT MEANS AND (3) __YOU ARE WILLING TO HAVE ALL IMAGES DELETED!!!__
-  * overlay `./conf_scripts/docker_config/docker_erase_use_overlayfs.sh` __DELETES ALL IMAGES__
-  * back to default `./conf_scripts/docker_config/docker_erase_use_default_storage_driver.sh` __DELETES ALL IMAGES__
+  * ONLY DO THIS IF (1) YOU ARE RUNNING CENTOS 7 (2) YOU UNDERSTAND WHAT IT MEANS AND (3) __YOU ARE WILLING TO HAVE *ALL* IMAGES DELETED INCLUDING THOSE OUTSIDE THIS PROJECT!!!__
+  * overlay `./conf_scripts/docker_config/docker_erase_use_overlayfs.sh` __DELETES *ALL* IMAGES__
+  * back to default `./conf_scripts/docker_config/docker_erase_use_default_storage_driver.sh` __DELETES *ALL* IMAGES__
 
 * Change environment variables for build (__MLJ: added__)
   * `vi .env`
 
-* Build all images
+* Build stack images
   * `docker-compose build`
-  * clean all images with `./conf_scripts/build_destroy_images/clean_images.sh` (__MLJ: added__)
+  * clean stack images with `./conf_scripts/build_destroy_images/clean_images.sh` (__MLJ: added__)
 
 * Create the shared network used in provided yml files -- this is 1x (__MLJ: added__)
   * `./conf_scripts/create_network.sh`
@@ -50,7 +50,7 @@ A more detailed description how to run and to build containers can be found in e
   * `./conf_scripts/accumulo_config/accumulo_swappiness.sh`
   * make permanent by adding 'vm.swappiness=10' to '/etc/sysctl.conf'
 
-* Publish all images (_optional: this is to quay.io -- requires an account_)
+* Publish stack images (_optional: this is to quay.io -- requires an account_)
   * `./.docker/release -t=latest --publish`
 
 ## Run a multinode cluster
@@ -103,44 +103,67 @@ Example of starting a multinode cluster on three machines. Node1 (hostname GeoSe
 
 ## Run a local multinode cluster
 
-We can simulate a multinode cluster on a single machine using Docker Compose. [stack.yml](./stack.yml) is an example of instrutions to rise a singlenode cluster, adding additional services description for slave nodes allowed to raise any nodes amount (limited by host machine memory).
+We can simulate a multinode cluster on a single machine using Docker Compose. [stack.yml](./stack.yml) is an example of instrutions to raise a singlenode cluster, adding additional services description for slave nodes allowed to raise any nodes amount (limited by host machine memory).
 
 ```bash
 # MLJ: changed, command used to be `docker-compose -f docker-compose-dev.yml up`
 docker-compose -f stack.yml up 
 ```
 
-__MLJ: changed__
-For more customized control (including the beginnings of persisted containers by only stopping core.yml):
+__MLJ: Added__
+For more customized control:
 
 _from terminal1_
 ```bash
-docker-compose -f core.yml up 
+# e.g. bring up zookeeper + hadoop
+docker-compose -f zookeeper.yml -f hadoop.yml up 
 ```
 
 _from terminal2_
 ```bash
+# e.g. add accumulo to zookeeper + hadoop
 docker-compose -f accumulo.yml up 
 ```
 
 _this could be continued for additional services, the benefit being that core services can be separated from those which depend on it, see [spark.yml](./spark.yml) and [geoserver.yml](./geoserver.yml)._
 
+_a script helps with this_
+```bash
+# e.g. for select services
+./start_services.sh zookeeper hadoop accumulo
+
+# for everything use 'stack'
+./start_services.sh stack
+```
+
 #### Tear Down
 ```bash
-# e.g. tear down accumulo, keeping core (it is ok to use `down` to tear down containers not part of core)
+# e.g. tear down accumulo only
 docker-compose -f accumulo.yml down 
 ```
 
-#### Stop
+_a script helps with this_
 ```bash
-# e.g. stop core with out removing containers (recommend `stop` over `down` for dev persistence strategy)
-docker-compose -f core.yml stop 
+# e.g. for select services 
+./start_services.sh zookeeper hadoop accumulo
+
+# for everything use 'stack'
+./stop_services.sh stack
+```
+### Accumulo Shell
+SSH into running accumulo tablet server and start shell with the following:
+
+```bash
+# will source from '.env', can override user / pwd args.
+./accumulo_shell.sh
 ```
 
-#### Start
+#### Persistence
+Persistence is accomplished by the use of local directories in './data' which are rw enabled and are mounted by the 'volume' directive on identified containers, carrying over after an up/down cycle -- you don't need to create these, just let the container create and manage (do need to remove to wipe all clean). This could also be handled several ways, to include volumes fully managed by docker and volumes externally generated, (see 'half-baked' directory for portions of those ideas). However, the most pesky issue that arose and was quite misleading was an init race condition which occurs on subsequent relaunches of the stack, e.g. `./start_services.sh stack`. The condition encountered was datanode would look for namenode while namenode was still initializing and then would stop/exit. Namenode would then finish initialization and not find datanode. Therefore, namenode would enter safe mode without manual intervention. [workaround_hadoop_namenode_issue.sh](./workaround_hadoop_namenode_issue.sh) is a workaround, it assumes hadoop.yml has been brought up already. It is safe to call as a stop-gap, meaning if all is well, no harm done to call it.
+
 ```bash
-# e.g. start core with out removing containers (recommend `start` after a `stop` for dev persistence strategy)
-docker-compose -f core.yml start 
+# call whenever datanode exits on init due to race condition with namenode
+./workaround_hadoop_namenode_issue.sh
 ```
 
 ## License

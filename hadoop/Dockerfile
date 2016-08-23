@@ -16,8 +16,8 @@ RUN set -x && \
     mkdir -p $HADOOP_PREFIX && \
     curl -# http://apache-mirror.rbc.ru/pub/apache/hadoop/common/hadoop-${HADOOP_VERSION}/hadoop-${HADOOP_VERSION}.tar.gz | tar -xz -C ${HADOOP_PREFIX} --strip-components=1
 
-# MLJ: Alter for overlay storage driver
 #COPY ./fs /
+# MLJ: Alter for overlay storage driver
 RUN mkdir -p /opt/hadoop/etc/hadoop
 COPY ./fs/opt/hadoop/etc/hadoop/core-site.xml /opt/hadoop/etc/hadoop/
 COPY ./fs/opt/hadoop/etc/hadoop/hdfs-site.xml /opt/hadoop/etc/hadoop/
@@ -28,9 +28,9 @@ COPY ./fs/sbin/sname-node-dev.sh /sbin/
 
 # MLJ: Added mkdir
 RUN mkdir -p /data/hdfs
-VOLUME ["/data/hdfs"]
 
-# MLJ: Added ports
+# DOCUMENTATION ONLY
+#VOLUME ["/data/hdfs"]
 # from https://github.com/bigdatafoundation/docker-hadoop/blob/master/2.6.0/Dockerfile
 
 # http://docs.hortonworks.com/HDPDocuments/HDP2/HDP-2.3.0/bk_HDP_Reference_Guide/content/reference_chap2.html
@@ -51,8 +51,7 @@ VOLUME ["/data/hdfs"]
 #	50475 = dfs.datanode.https.address	(HTTPS / Secure UI)
 # HDFS: Secondary NameNode (SNN)
 #	50090 = dfs.secondary.http.address	(HTTP / Checkpoint for NameNode metadata)
-EXPOSE 9000 50070 50010 50020 50075 50090
-
+#EXPOSE 9000 50070 50010 50020 50075 50090
 
 WORKDIR "${HADOOP_HOME}"
 ENTRYPOINT [ "/sbin/entrypoint.sh" ]

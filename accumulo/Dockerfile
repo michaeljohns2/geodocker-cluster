@@ -29,8 +29,8 @@ RUN yum -y install make gcc-c++
 
 RUN bash -c "bin/build_native_library.sh"
 
-# MLJ: Alter COPY for overlay storage driver
 #COPY ./fs /
+# MLJ: Alter COPY for overlay storage driver
 RUN mkdir -p /opt/accumulo/conf
 COPY ./fs/opt/accumulo/conf/accumulo-env.sh /opt/accumulo/conf/
 COPY ./fs/opt/accumulo/conf/accumulo-site.xml /opt/accumulo/conf/
@@ -40,5 +40,8 @@ COPY ./fs/sbin/await-master-dev.sh /sbin/
 COPY ./fs/sbin/entrypoint.sh /sbin/
 COPY ./fs/sbin/load-iterators.sh /sbin/
 COPY ./fs/sbin/master-node-dev.sh /sbin/
+
+# DOCUMENTATION ONLY
+#EXPOSE 50095
 
 ENTRYPOINT [ "/sbin/entrypoint.sh" ]

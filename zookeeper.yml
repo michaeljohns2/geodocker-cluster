@@ -1,0 +1,14 @@
+version: '2'
+services:   
+# THIS IS ZOOKEEPER
+    geodocker-zookeeper:
+        image: ${PULL_PREFIX}/geodocker-zookeeper
+        ports:
+          - '2181:2181'
+        volumes:
+          - './data/zookeeper:/data/zookeeper:rw'
+networks:
+  default:
+    external:
+      name: ${CLUSTER_NET}
+

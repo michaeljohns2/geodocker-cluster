@@ -1,12 +1,14 @@
 version: '2'
 services:   
 # THIS IS A FULL STACK (SHUT-DOWN ALL ELSE PRIOR)
-# CAN START CORE FIRST, THEN START OTHERS INDIVIDUALLY
-# e.g. `docker-compose -f core.yml up` then `docker-compose -f accumulo.yml up` etc.
+# ALSO, CAN START INDIVIDUALLY e.g. `docker-compose -f zookeeper.yml up` then `docker-compose -f hadoop.yml up` `[...]`
+# ALSO, CAN START TOGETHER e.g. `docker-compose -f zookeeper.yml -f hadoop.yml up [...]` 
     geodocker-zookeeper:
         image: ${PULL_PREFIX}/geodocker-zookeeper
         ports:
-          - '2181:2181'                
+          - '2181:2181'
+        volumes:
+          - './data/zookeeper:/data/zookeeper:rw'
     geodocker-hadoop-name:
         image: ${PULL_PREFIX}/geodocker-hadoop
         command: name dev
@@ -14,7 +16,9 @@ services:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
         ports:
           - '50070:50070'
-        links:
+        volumes:
+          - './data/hdfs:/data/hdfs:rw'
+        depends_on:
           - geodocker-zookeeper
     geodocker-hadoop-sname:
         image: ${PULL_PREFIX}/geodocker-hadoop
@@ -23,7 +27,9 @@ services:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
         ports:
           - '50090:50090'
-        links:
+        volumes:
+          - './data/hdfs:/data/hdfs:rw'
+        depends_on:
           - geodocker-hadoop-name
     geodocker-hadoop-data:
         image: ${PULL_PREFIX}/geodocker-hadoop
@@ -34,7 +40,9 @@ services:
 # The host port can be randomly assigned by Docker, to allow scaling to multiple DataNodes on the same host
 # To enable, provide '<port>' instead of '<port>:<port>'
           - '50075:50075'
-        links:
+        volumes:
+          - './data/hdfs:/data/hdfs:rw'
+        depends_on:
           - geodocker-hadoop-name
     geodocker-accumulo-master:
         # choose one of images (geodocker-accumulo-gis / geodocker-accumulo)
@@ -109,7 +117,10 @@ services:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
           MASTER: spark://geodocker-spark-master:7077
         ports:
-          - 8080:8080        
+          - '8080:8080'
+          - '7077:7077'
+        volumes:
+          - './data/spark:/data/spark:rw'
         depends_on:
           - geodocker-hadoop-data
     geodocker-spark-worker:
@@ -127,11 +138,10 @@ services:
           - geodocker-spark-master
     geodocker-geoserver:
         image: ${PULL_PREFIX}/geodocker-geoserver
-        hostname: geodocker-geoserver            
+        hostname: geodocker-geoserver
         depends_on:
           - geodocker-accumulo-tserver
 networks:
   default:
     external:
       name: ${CLUSTER_NET}
-

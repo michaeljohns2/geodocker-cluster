@@ -1,11 +1,9 @@
 version: '2'
 services:   
-# THIS IS GEOSERVER (ASSUMES CORE + ACCUMULO IS UP)  
+# THIS IS GEOSERVER (ASSUMES ZOOKEEPER, HADOOP + ACCUMULO IS UP)  
     geodocker-geoserver:
         image: ${PULL_PREFIX}/geodocker-geoserver
-        hostname: geodocker-geoserver            
-        external_links:
-          - geodocker-accumulo-tserver
+        hostname: geodocker-geoserver
 networks:
   default:
     external:
