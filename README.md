@@ -144,10 +144,10 @@ docker-compose -f accumulo.yml down
 
 _a script helps with this_
 ```bash
-# e.g. for select services 
-./start_services.sh zookeeper hadoop accumulo
+# e.g. for select services (this is a remove, volumes persist though)
+./stop_services.sh zookeeper hadoop accumulo
 
-# for everything use 'stack'
+# for everything use 'stack' (this is a remove, volumes persist though)
 ./stop_services.sh stack
 ```
 ### Accumulo Shell
